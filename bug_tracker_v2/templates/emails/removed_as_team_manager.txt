@@ -1,0 +1,1 @@
+You have been removed from the managers of the team {{ team_title }}.

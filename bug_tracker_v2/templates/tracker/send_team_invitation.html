@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load django_tables2 %}
+{% load bootstrap4 %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<h3>Inviting to {{ team_name }}</h3>
+  <p>If you are inviting an existing user, you may enter a username or an email address.</p>
+  <p>To invite someone who is not currently registered to the site, enter an email address.</p>
+
+    <form class="form-inline" action="" method="POST">{% csrf_token %}
+      <input type="text" class="form-control mb-2 mr-sm-2" placeholder="Email or username" name="invitee">
+
+      <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group mr-2" role="group">
+            <button type="submit" class="btn btn-primary mb-2">Submit</button>
+        </div>
+        <div class="btn-group mr-2" role="group">
+          <a href="{% url 'team_details' team_slug=team_slug %}" class="btn btn-link">Cancel</a>
+        </div>
+      </div>
+    </form>
+
+{% endblock content %}

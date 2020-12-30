@@ -1,0 +1,16 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/monks-bugtracker-cloud/bugtracker-web", "."]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/monks-bugtracker-cloud/bugtracker-web"]
+
+  - name: "gcr.io/google-appengine/exec-wrapper"
+    args: ["-i", "gcr.io/monks-bugtracker-cloud/bugtracker-web",
+           "-s", "monks-bugtracker-cloud:us-central1:bug-tracker-instance",
+           "--", "python", "manage.py", "migrate"]
+
+  - name: "gcr.io/google-appengine/exec-wrapper"
+    args: ["-i", "gcr.io/monks-bugtracker-cloud/bugtracker-web",
+           "-s", "monks-bugtracker-cloud:us-central1:bug-tracker-instance",
+           "--", "python", "manage.py", "collectstatic", "--no-input", "--clear", "--settings=config.settings.production"]

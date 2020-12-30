@@ -1,0 +1,33 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load bootstrap4 %}
+{% load crispy_forms_tags %}
+
+{% block page_javascript %}
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+$('textarea').each(function() {
+    var simplemde = new SimpleMDE({
+        element: this,
+        spellChecker: false,
+    });
+    simplemde.render();
+})
+</script>
+{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+{% endblock %}
+
+{% block content %}
+
+<h1>Update Ticket</h1>
+<form method="POST" novalidate>
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input type="submit" value="Update">
+    <a href="{% url 'tracker:ticket_details' pk=ticket.pk team_slug=team_slug %}" class="btn btn-cancel">Cancel</a>
+</form>
+
+{% endblock %}

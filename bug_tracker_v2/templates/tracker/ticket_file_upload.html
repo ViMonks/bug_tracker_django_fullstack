@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h1>Upload File to Ticket</h1>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input type="submit" value="Upload">
+{#    <a href="{% url 'team_list' %}" class="btn btn-cancel">Cancel</a>#}
+</form>
+
+{% endblock content %}

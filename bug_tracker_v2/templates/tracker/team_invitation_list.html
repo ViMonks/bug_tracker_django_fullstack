@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+<h1>Pending Team Invites</h1>
+  {% if invites.count > 0 %}
+    <ul>
+      {% for invite in invites %}
+        <li>
+          {{ invite.team }}
+          <a href="{% url 'accept_team_invitation'  %}?invitation={{ invite.id }}">Accept</a>
+          <a href="{% url 'decline_team_invitation'  %}?invitation={{ invite.id }}">Decline</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You have no pending team invitations.</p>
+  {% endif %}
+{% endblock content %}

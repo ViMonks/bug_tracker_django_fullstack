@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container">
+        {% if request.user.is_authenticated %}
+            <div class="container">
+                <h4>Tickets</h4>
+                <table class="table table-striped table-bordered table-hover table-sm" data-toggle="table">
+                    <thead class="font-weight-bold">
+                    <tr>
+                        <th data-sortable="true">Title</th>
+                        <th>Description</th>
+                        <th>Developer</th>
+                        <th>Project</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th>Last Updated</th>
+                    </tr>
+                    </thead>
+                    {% for ticket in tickets_list %}
+                    <tr>
+                        <td><a href="{% url 'tracker:ticket_details' pk=ticket.pk %}">{{ ticket.title }}</a></td>
+                        <td>{{ ticket.description }}</td>
+                        <td>
+                            {% if ticket.developer.all.count > 0 %}
+                                {{ ticket.developer.all|join:", " }}
+                            {% else %}
+                                None assigned
+                            {% endif %}
+                        </td>
+                        <td>{{ ticket.project }}</td>
+                        <td>{{ ticket.priority }}</td>
+                        <td>{{ ticket.get_status_display }}</td>
+                        <td>{{ ticket.created_on }}</td>
+                        <td>{{ ticket.last_updated_on }}</td>
+                    </tr>
+                    {% empty %}
+                        <p>No tickets found.</p>
+                    {% endfor %}
+
+                </table>
+            </div>
+        {% else %}
+            <h4>You are not logged in.</h4>
+        {% endif %}
+    </div>
+
+{% endblock %}

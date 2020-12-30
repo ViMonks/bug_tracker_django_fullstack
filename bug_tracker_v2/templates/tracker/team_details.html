@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>{{ team.title }}</h2>
+<p>{{ team.get_description_as_markdown }}</p>
+<p><strong>Owners:</strong></p>
+  <ul>
+    {% for owner in team.get_owners %}
+      <li>{{ owner }}</li>
+    {% endfor %}
+  </ul>
+  <p>Managers:</p>
+  <ul>
+    {% for manager in managers.all %}
+      <li>
+        {{ manager }}
+        {% if user in team.get_owners %} <a href="{% url 'team_remove_manager' team_slug=team_slug %}?username={{ manager }}" onclick="return confirm('Remove {{ manager }} from team managers?');">Demote Manager</a> {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+
+<p>Members:</p>
+<ul>
+    {% for member in non_managers %}
+    <li>{{ member }} {% if user in team.get_owners %}
+      <a href="{% url 'team_add_manager' team_slug=team_slug %}?username={{ member }}" onclick="return confirm('Make {{ member }} a manager?');">Make Manager</a>
+      <a href="{% url 'remove_team_member' team_slug=team_slug %}?username={{ member }}" onclick="return confirm('Remove {{ member }} from your team?');">Remove Member</a>
+    {% endif %}</li>
+    {% endfor %}
+</ul>
+
+  {% if user in team.get_owners %}
+    <a href="{% url 'tracker:team_update' team_slug=team_slug %}">Update Team Description</a>
+    <br>
+    <a href="{% url 'team_invite' team_slug=team_slug %}">Invite New Members</a>
+    <br>
+    <a href="{% url 'team_ownership_warning' team_slug=team_slug %}">Manage Team Ownership</a>
+    <br>
+  {% endif %}
+
+  {% if user not in team.get_owners %}
+    <a href="{% url 'leave_team' team_slug=team_slug %}" class="btn btn-danger" onclick="return confirm('Leave this team? You will not be able to rejoin unless you are invited back.');">Leave Team</a>
+  {% else %}
+    <button type="button" class="btn btn-danger" disabled data-toggle="tooltip" title="You cannot leave a team that you own. Step down as owner first.">Leave Team</button>
+  {% endif %}
+
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load crispy_forms_tags %}
+{% load django_tables2 %}
+{% load widget_tweaks %}
+
+{% block page_javascript %}
+<script language="JavaScript">
+function toggle(source) {
+    checkboxes = document.getElementsByName('check');
+    for(var i in checkboxes)
+        checkboxes[i].checked = source.checked;
+}
+</script>
+{% endblock page_javascript %}
+
+{% block content %}
+
+  {% if object_list.count > 0 %}
+    <div class="container">
+    <h4>Subscribed Tickets</h4>
+      <form action="{% url 'multiple_unsubscribe' %}" method="POST"> {% csrf_token %}
+        <div class="form-group">
+        <input type="submit" value="Unsubscribe from selected tickets" class="btn btn-sm btn-light">
+          </div>
+        <div class="form-group">
+        <div class="pagination-sm">
+          {% render_table table %}
+          </div>
+        </div>
+      </form>
+    </div>
+  {% else %}
+    <h4>Subscribed Tickets</h4>
+    <p>You are not subscribed to any tickets.</p>
+  {% endif %}
+
+  {% if last_viewed_project %}
+    <p>Last viewed project:
+      <a href="{% url 'tracker:project_details' project_pk=last_viewed_project_pk team_slug=last_viewed_project.team.slug %}">{{ last_viewed_project.title }}</a>
+    </p>
+  {% endif %}
+
+{% endblock content %}

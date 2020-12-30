@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load django_tables2 %}
+{% load bootstrap4 %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+  <h1>{{ project.title }}</h1>
+  <h4>Project Developers</h4>
+  <ul>
+    {% if project_developers.count > 0 %}
+      {% for developer in project_developers %}
+        <li>{{ developer }} <a href="{% url 'tracker:project_manage_developers' team_slug=team_slug project_pk=project.pk %}?remove={{ developer }}">Remove</a></li>
+      {% endfor %}
+    {% else %}
+      <li>Project has no assigned developers.</li>
+    {% endif %}
+  </ul>
+  <h4>Team Members</h4>
+  <ul>
+    {% if team_members %}
+      {% for member in team_members %}
+        <li>{{ member }} <a href="{% url 'tracker:project_manage_developers' team_slug=team_slug project_pk=project.pk %}?add={{ member }}">Add</a></li>
+      {% endfor %}
+    {% else %}
+      <li>No team members to add.</li>
+    {% endif %}
+  </ul>
+  <a href="{% url 'tracker:project_details' team_slug=team_slug project_pk=project.pk %}" class="btn btn-primary">Go back</a>
+{% endblock content %}

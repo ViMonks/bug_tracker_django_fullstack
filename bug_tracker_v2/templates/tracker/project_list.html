@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load django_tables2 %}
+{% load bootstrap4 %}
+{#{% load crispy_forms_tags %}#}
+{% load widget_tweaks %}
+
+{% block content %}
+
+        {% if request.user.is_authenticated %}
+                <h4>Projects ({{ project_count }})</h4>
+            {% if project_count > 0 %}
+                {% if filter %}
+                <form>
+                    <div class="card bg-light container mb-3">
+                        <div class="card-body row">
+                            <div class="form-group col-sm-4 col-md-3">
+                                <h5 class="card-title">Title</h5>
+                                {% render_field filter.form.title class='form-control' %}
+                            </div>
+                            <div class="col">
+                                <h5 class="card-title">Start Date</h5>
+                                {% render_field filter.form.start_date class='form-control' %}
+                            </div>
+                            <div class="col">
+                                <h5 class="card-title">End Date</h5>
+                                {% render_field filter.form.end_date class='form-control'%}
+                            </div>
+                            <div class="col">
+                                <h5 class="card-title">Manager</h5>
+                                {% render_field filter.form.manager class='form-control' %}
+                            </div>
+                        </div>
+                        <div class="card-body row">
+                            <div class="col">
+                                <button class="btn btn-primary" type="submit">Search</button>
+                                <a href="{% url 'tracker:project_list' team_slug=team_slug %}" class="btn btn-primary">Reset</a>
+                            </div>
+                            {% if user in current_team.get_owners %}
+                                <div class="col text-right">
+                                    <a href="{% url 'tracker:create_project' team_slug=team_slug %}" class="btn btn-success">Create New Project</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        </div>
+                </form>
+                {% endif %}
+                {% render_table table %}
+            {% else %}
+                <h5>{{ empty_project_message }}</h5>
+                  {% if user in current_team.get_owners %}
+                    <div class="col">
+                        <a href="{% url 'tracker:create_project' team_slug=team_slug %}" class="btn btn-success">Create New Project</a>
+                    </div>
+                  {% endif %}
+            {% endif %}
+
+            <a href="{% url archived_view_toggle_url team_slug=team_slug %}">{{ archived_view_toggle }}</a>
+
+        {% else %}
+            <h4>You are not logged in.</h4>
+        {% endif %}
+
+{% endblock %}

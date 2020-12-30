@@ -1,0 +1,32 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load bootstrap4 %}
+{% load crispy_forms_tags %}
+
+{% block page_javascript %}
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+    let simplemde = new SimpleMDE({spellChecker: false,});
+</script>
+{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+{% endblock %}
+
+{% block content %}
+
+<h1>Submit Ticket</h1>
+
+<form method="POST" novalidate>
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input type="submit" value="Create">
+    {% if project_pk %}
+        <a class="btn btn-cancel" href="{% url 'tracker:project_details' project_pk=project_pk team_slug=team_slug %}">Cancel</a>
+    {% else %}
+        <a class="btn btn-cancel" href="{% url 'tracker:project_list' team_slug=team_slug %}">Cancel</a>
+    {% endif %}
+</form>
+
+{% endblock %}

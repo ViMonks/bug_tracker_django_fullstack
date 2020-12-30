@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load django_tables2 %}
+{% load bootstrap4 %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+    <div class="container">
+        {% if request.user.is_authenticated %}
+            <div class="container">
+                <h4>{{ page_title }}</h4>
+            {% if object_list.count > 0 %}
+                {% if filter %}
+                <form>
+                    <div class="card bg-light mb-3">
+                        <div class="card-body row">
+                            <div class="form-group col-sm-4 col-md-3">
+                                <h5 class="card-title">Title</h5>
+                                {% render_field filter.form.title class='form-control' %}
+                            </div>
+                            <div class="form-group col-sm-4 col-md-3">
+                                <h5 class="card-title">User</h5>
+                                {% render_field filter.form.user class='form-control' %}
+                            </div>
+                            <div class="form-group col-sm-3 col-md-2">
+                                <h5 class="card-title">Project</h5>
+                                {% render_field filter.form.project class='form-control' %}
+                            </div>
+                            <div class="form-group col-sm-3 col-md-2">
+                                <h5 class="card-title">Priority</h5>
+                                {% render_field filter.form.priority class='form-control' %}
+                            </div>
+                            <!-- SECOND ROW -->
+                            <div class="form-group col-sm-4 col-md-3">
+                                <h5 class="card-title">Created after</h5>
+                                {% render_field filter.form.created_start_date class='form-control' %}
+                            </div>
+                            <div class="form-group col-sm-4 col-md-3">
+                                <h5 style="visibility: visible" class="card-title">Created before</h5>
+                                {% render_field filter.form.created_end_date class='form-control' %}
+                            </div>
+                            <div class="form-group col-sm-4 col-md-3">
+                                <h5 class="card-title">Last updated after</h5>
+                                {% render_field filter.form.updated_start_date class='form-control' %}
+                            </div>
+                            <div class="form-group col-sm-4 col-md-3">
+                                <h5 style="visibility: visible" class="card-title">Last updated before</h5>
+                                {% render_field filter.form.updated_end_date class='form-control' %}
+                            </div>
+                            {% if display_dev_filter %}
+                            <div class="form-group col-sm-4 col-md-3">
+                                <h5 class="card-title">Assigned developer:</h5>
+                                {% render_field filter.form.developer %}
+                            </div>
+                            {% endif %}
+                            <div class="form-group col-sm-4 col-md-1">
+                                <br>
+                                <button class="btn btn-primary" type="submit">Search</button>
+                            </div>
+                            <div class="form-group col-sm-4 col-md-1">
+                                <br>
+                                <a href="{% url 'tracker:ticket_list' team_slug=team_slug %}" class="btn btn-primary">Reset</a>
+                            </div>
+                            <div class="form-group col-sm-4 col-md-3">
+                                <br>
+                                <a href='{% url ticket_status_toggle_url team_slug=team_slug %}' class="btn btn-primary">{{ ticket_status_toggle }}</a>
+                            </div>
+                        </div>
+
+                        </div>
+                      </form>
+
+                    </div>
+{#                </form>#}
+                {% endif %}
+                {% render_table table %}
+              {% else %}
+                    <h5>{{ no_tickets_message }}</h5>
+              {% endif %}
+
+            </div>
+        {% else %}
+            <h4>You are not logged in.</h4>
+        {% endif %}
+    </div>
+
+{% endblock %}

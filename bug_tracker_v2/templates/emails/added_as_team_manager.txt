@@ -1,0 +1,1 @@
+You have been added as a manager to the team {{ team_title }}.

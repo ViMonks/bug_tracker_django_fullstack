@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+  {% if last_viewed_project %}
+  <p>Last viewed project:
+    <a href="{% url 'tracker:project_details' project_pk=last_viewed_project_pk team_slug=last_viewed_project.team.slug %}">{{ last_viewed_project.title }}</a>
+  </p>
+  {% endif %}
+{% else %}
+
+
+{% endif %}
+
+{% endblock content %}

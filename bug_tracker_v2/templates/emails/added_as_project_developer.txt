@@ -1,0 +1,1 @@
+You have been assigned as a developer to project {{ project_title }}.

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load django_tables2 %}
+{% load bootstrap4 %}
+{% load widget_tweaks %}
+
+{% block page_javascript %}
+  <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+{% endblock page_javascript %}
+
+{% block content %}
+
+        <div class="row">
+            <div class="col-md-4">
+
+            <h1>{{ project.title }}</h1>
+            <p><strong>Manager: </strong>{{ project.manager }}</p>
+            <p>{{ project.get_description_as_markdown }}</p>
+            <p><strong>Assigned developers:</strong></p>
+            <ul>
+                {% for dev in project.developers.all %}
+                    <li>{{ dev }}</li>
+                {% endfor %}
+            </ul>
+            {% if user in current_team.get_owners or user == project.manager %}
+              <p><a href="{% url 'tracker:project_manage_developers' team_slug=team_slug project_pk=project.pk%}">Manage developers</a></p>
+            {% endif %}
+            <p>Created on: {{ project.created_on }}</p>
+            {% if user in current_team.get_owners or user.is_staff %}
+
+                <div class="row no-gutters">
+                <div class="col-md-5">
+                    <a class="btn btn-primary" href="{% url 'tracker:project_update' project_pk=project.pk team_slug=team_slug %}">Update Project</a>
+                </div>
+                <div class="col">
+                    <form action="{% url 'tracker:archive_project' project_pk=project.pk team_slug=team_slug %}" method="POST"> {% csrf_token %}
+                        <input class="btn btn-warning" type="submit" value="{{ archive_toggle_label }}" onclick="return confirm('{{ archive_toggle_label }}?');">
+                    </form>
+                </div>
+                </div>
+
+            {% endif %}
+            <br>
+            {% if request.user in project.subscribers.all %}
+              <p><a href="{% url 'tracker:unsubscribe_all' team_slug=team_slug project_pk=project.pk %}" data-toggle="tooltip" title="You will no longer receive emails when new tickets are created and you will be unsubscribed from all tickets.">Unsubscribe from project</a></p>
+            {% else %}
+              <p><a href="{% url 'tracker:subscribe_all' team_slug=team_slug project_pk=project.pk %}" data-toggle="tooltip" title="You will receive emails when new tickets are created and you will be subscribed to all tickets.">Subscribe to project</a></p>
+            {% endif %}
+            </div>
+
+            <div class="col-md-8">
+{#            <div class="row">#}
+            {% if ticket_counter > 0 %}
+              <div class="row">
+                <h3>{{ ticket_table_title }} ({{ ticket_counter }})</h3>
+              </div>
+
+                <div class="row">
+                  <form class="form-inline" action="" method="GET">
+                    <input type="text" class="form-control mb-2 mr-sm-2" placeholder="Title" name="q">
+
+                    <div class="btn-toolbar" role="toolbar">
+                      <div class="btn-group mr-2" role="group">
+                          <button type="submit" class="btn btn-primary mb-2">Search</button>
+                      </div>
+                      <div class="btn-group mr-2" role="group">
+                          <button class="btn btn-primary mb-2" href="{% url 'tracker:project_details' team_slug=team_slug project_pk=project.pk %}">Reset</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
+                <div class="pagination-sm row">
+                {% render_table table %}
+                </div>
+            {% else %}
+            <h3>{{ empty_ticket_message }}</h3>
+            {% endif %}
+{#            </div>#}
+                <div class="row">
+                    <div class="col">
+                        <a href="{% url 'tracker:create_ticket' team_slug=team_slug %}?project={{ project.pk }}" class="btn btn-primary">Submit Ticket</a>
+                        <a href="{% url ticket_status_toggle_url project_pk=project.pk team_slug=team_slug %}">{{ ticket_status_toggle }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}WARNING{% endblock title %}
+
+{% block content %}
+
+  <p><strong>WARNING:</strong> You are about to add an owner to your team. All team owners have equal privileges. That means any owners you add can change anything about
+  your team, including adding additional owners, inviting and removing members, and so on. Furthermore, you cannot remove any team owners you add. They can only
+  step down voluntarily. Be very careful about who you add as a team owner.</p>
+  <p>This page also allows you to step down as an owner. In order to do so, you must promote at least one other member of your team
+   to an ownership position. If you step down as owner, the process cannot be undone. You will have no method of recovering ownership
+  of your team unless another owner adds you.</p>
+
+  <a class="btn btn-success" href="{% url 'manage_team_ownership' team_slug=team_slug %}">Continue to manage team ownership</a>
+  <a class="btn btn-danger" href="{% url 'team_details' team_slug=team_slug %}">Take me back</a>
+
+{% endblock content %}

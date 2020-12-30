@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load crispy_forms_tags %}
+
+{% block page_javascript %}
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+$('textarea').each(function() {
+    var simplemde = new SimpleMDE({
+        element: this,
+        spellChecker: false,
+    });
+    simplemde.render();
+})
+</script>
+{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+{% endblock %}
+
+{% block content %}
+
+<h1>Create New Team</h1>
+<form method="POST" novalidate>
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input type="submit" value="Create Team">
+    <a href="{% url 'team_list' %}" class="btn btn-cancel">Cancel</a>
+</form>
+
+{% endblock %}

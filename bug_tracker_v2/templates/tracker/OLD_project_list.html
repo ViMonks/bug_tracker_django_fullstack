@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div class="container">
+        {% if request.user.is_authenticated %}
+            <div class="container">
+                <h4>Projects</h4>
+                <table class="table table-striped table-bordered table-hover table-sm">
+                    <thead class="font-weight-bold">
+                    <tr>
+                        <td>Title</td>
+                        <td>Description</td>
+                        <td>Number of Tickets</td>
+                        <td>Created Date</td>
+                    </tr>
+                    </thead>
+                    {% for project in projects_list %}
+                    <tr>
+                        <td><a href="{% url 'tracker:project_details' pk=project.pk %}">{{ project.title }}</a></td>
+                        <td>{{ project.description }}</td>
+                        <td>{{ project.project_tickets.count }}</td>
+                        <td>{{ project.created_on }}</td>
+                    </tr>
+                    {% empty %}
+                        <p>No tickets found.</p>
+                    {% endfor %}
+
+                </table>
+            </div>
+        {% else %}
+            <h4>You are not logged in.</h4>
+        {% endif %}
+    </div>
+
+{% endblock %}

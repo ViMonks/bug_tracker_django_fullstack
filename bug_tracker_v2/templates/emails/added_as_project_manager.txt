@@ -1,0 +1,1 @@
+You have been assigned as the manager of project {{ project_title }}.

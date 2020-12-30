@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load crispy_forms_tags %}
+
+{% block page_javascript %}
+
+<script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+{% endblock page_javascript %}
+
+{% block content %}
+
+{% if enabled %}
+  <h1>Enabled Notifications</h1>
+    <ul>
+      {% for each in enabled %}
+        <li>
+          {{ each.title }}
+          <a href="{% url 'disable_notification' %}?setting={{ each.slug }}" data-toggle="tooltip" title="{{ each.description }}">Disable</a>
+        </li>
+      {% endfor %}
+    </ul>
+{% endif %}
+
+{% if disabled %}
+  <h1>Disabled Notifications</h1>
+    <ul>
+      {% for each in disabled %}
+        <li>
+          {{ each.title }}
+          <a href="{% url 'enable_notification' %}?setting={{ each.slug }}" data-toggle="tooltip" title="{{ each.description }}">Enable</a>
+        </li>
+      {% endfor %}
+    </ul>
+{% endif %}
+
+{% endblock content %}

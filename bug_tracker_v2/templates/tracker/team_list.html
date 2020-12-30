@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+{% if teams.owned_teams or teams.member_teams %}
+  {% if teams.owned_teams %}
+    <h1>My Teams</h1>
+      <ul>
+        {% for team in teams.owned_teams %}
+        <li><a href="{% url 'team_details' team_slug=team.slug %}">{{ team.title }}</a></li>
+        {% endfor %}
+      </ul>
+  {% endif %}
+
+  {% if teams.member_teams %}
+    <h1>Teams I've Joined</h1>
+      <ul>
+        {% for team in teams.member_teams %}
+        <li><a href="{% url 'team_details' team_slug=team.slug %}">{{ team.title }}</a></li>
+        {% endfor %}
+      </ul>
+  {% endif %}
+{% else %}
+  <h4>You are not a member of any teams. How about creating one?</h4>
+{% endif %}
+  <a href="{% url 'team_create' %}">Create New Team</a>
+
+{% if last_viewed_project %}
+<p>Last viewed project:
+  <a href="{% url 'tracker:project_details' project_pk=last_viewed_project.pk team_slug=last_viewed_project.team.slug %}">{{ last_viewed_project.title }}</a>
+</p>
+{% endif %}
+
+{% endblock content %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Manage Team Ownership{% endblock title %}
+
+{% block content %}
+
+<h1>Manage Team Ownership</h1>
+
+    <p><strong>WARNING:</strong> You are about to add an owner to your team. All team owners have equal privileges. That means any owners you add can change anything about
+    your team, including adding additional owners, inviting and removing members, and so on. Furthermore, you cannot remove any team owners you add. They can only
+    step down voluntarily. Be very careful about who you add as a team owner.</p>
+    <h4>Current owners</h4>
+    <ul>
+      {% for owner in current_owners %}
+        <li>
+          {{ owner }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% if valid_members.count > 0 %}
+    <h4>Members</h4>
+    <ul>
+      {% for member in valid_members %}
+        <li>
+          {{ member }}
+          <a href="{% url 'team_add_owner' team_slug=team_slug %}?username={{ member }}" onclick="return confirm('Make {{ member }} a co-owner of your team? This CANNOT be undone!');">Make co-owner</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Your team has no non-owner members.</p>
+  {% endif %}
+
+  <hr>
+  {% if multiple_owners %}
+    <a href="{% url 'team_remove_owner' team_slug=team_slug %}" class="btn btn-danger" onclick="return confirm('Give up ownership of your team? This CANNOT be undone!');">Step down as team owner</a>
+  {% else %}
+    <button type="button" class="btn btn-danger" disabled data-toggle="tooltip" title="You must promote a new member to owner before you can step down.">Step down as team owner</button>
+  {% endif %}
+{% endblock content %}

@@ -1,0 +1,1 @@
+You have been added as a co-owner of the team {{ team_title }}.

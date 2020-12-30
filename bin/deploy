@@ -1,0 +1,6 @@
+#!/bin/sh
+
+gcloud run deploy monks-bug-tracker --platform managed --region us-central1 \
+  --image gcr.io/monks-bugtracker-cloud/bugtracker-web \
+  --add-cloudsql-instances monks-bugtracker-cloud:us-central1:bug-tracker-instance \
+  --allow-unauthenticated

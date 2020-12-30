@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load octicons %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'tracker/tracker.css' %}">
+<link rel="stylesheet" href="{% static 'tracker/comment_form.css' %}?v=1.1">
+{% endblock %}
+
+{% block page_javascript %}
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+$('textarea').each(function() {
+    var simplemde = new SimpleMDE({
+        element: this,
+        spellChecker: false,
+    });
+    simplemde.render();
+})
+</script>
+
+    <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+{% endblock page_javascript %}
+
+{% block page_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+
+            <h1>{{ ticket.title }}</h1>
+            <p>{{ ticket.get_description_as_markdown }}</p>
+            <p>Submitted by: {{ ticket.user }}</p>
+            <p>Project: <a href="{% url 'tracker:project_details' project_pk=ticket.project.pk  team_slug=team_slug %}">{{ ticket.project }}</a></p>
+            <p>Priority: {{ ticket.priority|title }}</p>
+            <p>Status: {{ ticket.get_status_display|title }}</p>
+            {% if ticket.developer.all.count > 0 %}
+              <p>Assigned developers: {{ ticket.developer.all|join:", " }}</p>
+            {% endif %}
+            <p>Created on: {{ ticket.created_on }}</p>
+            <p>Last updated: {{ ticket.last_updated_on }}</p>
+            {% if ticket.files.all.count > 0 %}
+              <p>Uploaded files:</p>
+              <ul>
+                {% for file in ticket.files.all %}
+                  <li><a href="{{ file.file.url }}" download>{{ file }}</a></li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+            <button type="button" class="btn btn-light btn-sm" data-toggle="modal" data-target="#upload_file_modal">Upload File</button>
+            <hr>
+
+            {% if ticket.resolution %}
+                <p><strong>Resolution:</strong> {{ ticket.get_resolution_as_markdown }}</p>
+            {% endif %}
+
+            {% if subscribed %}
+              <p><a href="{% url 'tracker:unsubscribe_ticket' team_slug=team_slug pk=ticket.pk %}" data-toggle="tooltip" title="You will no longer receive an email when new comments are posted or when the ticket is closed or reopened.">Unsubscribe from ticket</a></p>
+            {% else %}
+              <p><a href="{% url 'tracker:subscribe_ticket' team_slug=team_slug pk=ticket.pk %}" data-toggle="tooltip" title="You will receive an email when new comments are posted or when the ticket is closed or reopened.">Subscribe to ticket</a></p>
+            {% endif %}
+
+            {% if user in ticket.developer.all or user == ticket.project.manager or user in ticket.team.get_owners or user.is_staff %}
+                <div class="row no-gutters">
+                <div class="col-md-3">
+                    <a class="btn btn-primary" href="{% url 'tracker:ticket_update' pk=ticket.pk team_slug=team_slug %}">Update Ticket</a>
+                </div>
+                <div class="col">
+            {% if ticket.status == 'closed' %}
+                <form class="form-horizontal" method="POST">
+                    {% csrf_token %}
+                    <input class="btn btn-warning" type="submit" value="Reopen Ticket" name="reopen_ticket" onclick="return confirm('Reopen this ticket?');">
+                </form>
+            {% else %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#close_ticket_modal">Close Ticket</button>
+            {% endif %}
+                </div>
+                </div>
+            {% endif %}
+            </div>
+
+
+            <div class="col">
+                <h1>Comments</h1>
+            <hr>
+                {% for comment in page_obj.object_list %}
+                <p>{{ comment.get_text_as_markdown }}</p>
+                  <p style="display: inline-block"><em>{{ comment.user }} on {{ comment.created_on }}</em></p>
+                  {% if user in ticket.team.get_owners or user == comment.user %}
+                    <form style="display: inline-block" class="form-inline" action="{% url 'tracker:delete_comment' pk=comment.pk team_slug=team_slug %}" method="POST">{% csrf_token %}
+                        <button class="btn btn-xs btn-light" onclick="return confirm('Delete this comment?');">{% octicon 'trashcan' %}</button>
+                    </form>
+                  {% endif %}
+                  <hr>
+                {% endfor %}
+
+                {% if page_obj.has_other_pages %}
+                <ul class="pagination pagination-sm justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a></li>
+                        {% endif %}
+
+                        {% for each in page_obj.paginator.page_range %}
+                            {% if page_obj.number == each %}
+                                <li class="page-item active"><a class="page-link" href="?page={{ each }}">{{ each }}</a></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ each }}">{{ each }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a></li>
+                        {% endif %}
+                </ul>
+                {% endif %}
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    {% bootstrap_form comment_form show_label=False %}
+                    <input type="submit" value="Submit" name="post_comment">
+                </form>
+
+<!-- Modal form for closing tickets and providing resolution field -->
+<div class="modal fade" id="close_ticket_modal" tabindex="-1" role="dialog" aria-labelledby="close_ticket_modal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Resolution:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" novalidate>
+          {% csrf_token %}
+            {% bootstrap_form close_ticket_form show_label=False %}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" class="btn btn-primary" value="Close Ticket" name="close_ticket">
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal form for uploading files to tickets -->
+<div class="modal fade" id="upload_file_modal" tabindex="-1" role="dialog" aria-labelledby="upload_file_modal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Upload a file:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+            {% bootstrap_form file_upload_form %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" class="btn btn-primary" value="Upload" name="upload_file">
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

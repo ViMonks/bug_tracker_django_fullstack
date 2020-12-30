@@ -1,0 +1,1 @@
+You are no longer an owner of the team {{ team_title }}. If you did not voluntarily step down, please contact support.
